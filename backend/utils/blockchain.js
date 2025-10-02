@@ -1,4 +1,4 @@
-const { ethers } = require('ethers');
+const { ethers, isAddress, keccak256, toUtf8Bytes, verifyMessage, verifyTypedData } = require('ethers');
 
 // Contract ABI for IssuerRegistry
 const CONTRACT_ABI = [
@@ -25,7 +25,7 @@ const CONTRACT_ABI = [
  */
 function getProvider() {
   const rpcUrl = process.env.SEPOLIA_RPC || 'https://rpc.sepolia.org';
-  return new ethers.providers.JsonRpcProvider(rpcUrl);
+  return new ethers.JsonRpcProvider(rpcUrl);
 }
 
 /**
@@ -101,7 +101,7 @@ async function getIssuerInfo(issuerAddress) {
     const result = {
       address: issuerInfo.addr,
       metadataUri: issuerInfo.metadataUri,
-      registeredAt: new Date(issuerInfo.registeredAt.toNumber() * 1000),
+      registeredAt: new Date(Number(issuerInfo.registeredAt) * 1000),
       exists: issuerInfo.exists,
       isActive: issuerInfo.isActive
     };
@@ -122,8 +122,8 @@ async function getIssuerCount() {
     const contract = getContract();
     const count = await contract.getIssuerCount();
     
-    console.log(`📊 Total registered issuers: ${count.toNumber()}`);
-    return count.toNumber();
+    console.log(`📊 Total registered issuers: ${Number(count)}`);
+    return Number(count);
   } catch (error) {
     console.error('❌ Failed to get issuer count:', error);
     throw new Error(`Blockchain query failed: ${error.message}`);
@@ -177,7 +177,9 @@ async function getAllIssuers() {
  */
 function isValidAddress(address) {
   try {
-    return ethers.utils.isAddress(address);
+    // Convert to lowercase for validation to avoid checksum issues
+    const lowerAddress = address.toLowerCase();
+    return isAddress(lowerAddress);
   } catch (error) {
     return false;
   }
@@ -190,7 +192,7 @@ function generateCredentialHash(credentialData) {
   try {
     // Create a deterministic hash of the credential
     const credentialString = JSON.stringify(credentialData, Object.keys(credentialData).sort());
-    const hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(credentialString));
+    const hash = keccak256(toUtf8Bytes(credentialString));
     
     console.log(`🔐 Generated credential hash: ${hash}`);
     return hash;
@@ -205,7 +207,7 @@ function generateCredentialHash(credentialData) {
  */
 function verifySignature(message, signature, expectedSigner) {
   try {
-    const recoveredAddress = ethers.utils.verifyMessage(message, signature);
+    const recoveredAddress = verifyMessage(message, signature);
     const isValid = recoveredAddress.toLowerCase() === expectedSigner.toLowerCase();
     
     console.log(`🔐 Signature verification: ${isValid ? 'VALID' : 'INVALID'}`);
@@ -224,7 +226,7 @@ function verifySignature(message, signature, expectedSigner) {
  */
 function verifyTypedDataSignature(domain, types, value, signature, expectedSigner) {
   try {
-    const recoveredAddress = ethers.utils.verifyTypedData(domain, types, value, signature);
+    const recoveredAddress = verifyTypedData(domain, types, value, signature);
     const isValid = recoveredAddress.toLowerCase() === expectedSigner.toLowerCase();
     
     console.log(`🔐 Typed data signature verification: ${isValid ? 'VALID' : 'INVALID'}`);

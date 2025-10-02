@@ -15,7 +15,7 @@ const registerSchema = Joi.object({
   username: Joi.string().alphanum().min(3).max(50).required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(8).max(100).required(),
-  walletAddress: Joi.string().pattern(/^0x[a-fA-F0-9]{40}$/).optional(),
+  walletAddress: Joi.string().pattern(/^0x[a-fA-F0-9]{40}$/i).optional(),
   firstName: Joi.string().max(50).optional(),
   lastName: Joi.string().max(50).optional(),
   organization: Joi.string().max(100).optional()
@@ -24,7 +24,7 @@ const registerSchema = Joi.object({
 const loginSchema = Joi.object({
   identifier: Joi.string().required(), // username or email
   password: Joi.string().required(),
-  walletAddress: Joi.string().pattern(/^0x[a-fA-F0-9]{40}$/).optional()
+  walletAddress: Joi.string().pattern(/^0x[a-fA-F0-9]{40}$/i).optional()
 });
 
 const updateProfileSchema = Joi.object({
@@ -32,7 +32,7 @@ const updateProfileSchema = Joi.object({
   lastName: Joi.string().max(50).optional(),
   organization: Joi.string().max(100).optional(),
   bio: Joi.string().max(500).optional(),
-  walletAddress: Joi.string().pattern(/^0x[a-fA-F0-9]{40}$/).optional()
+  walletAddress: Joi.string().pattern(/^0x[a-fA-F0-9]{40}$/i).optional()
 });
 
 const changePasswordSchema = Joi.object({
@@ -66,7 +66,7 @@ router.post('/register', asyncHandler(async (req, res) => {
   });
 
   if (existingUser) {
-    await logSecurityEvent('security_registration_attempt', req, {
+    await logSecurityEvent('security_registration_failed', req, {
       success: false,
       reason: 'User already exists',
       username,

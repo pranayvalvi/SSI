@@ -43,8 +43,8 @@ class ContractService {
       const contract = this.getContract(signer);
       
       // Estimate gas
-      const gasEstimate = await contract.estimateGas.registerIssuer(issuerAddress, metadataUri);
-      const gasLimit = gasEstimate.mul(120).div(100); // Add 20% buffer
+      const gasEstimate = await contract.registerIssuer.estimateGas(issuerAddress, metadataUri);
+      const gasLimit = (gasEstimate * 120n) / 100n; // Add 20% buffer
       
       // Send transaction
       const tx = await contract.registerIssuer(issuerAddress, metadataUri, {
@@ -70,8 +70,8 @@ class ContractService {
     try {
       const contract = this.getContract(signer);
       
-      const gasEstimate = await contract.estimateGas.updateIssuer(issuerAddress, metadataUri);
-      const gasLimit = gasEstimate.mul(120).div(100);
+      const gasEstimate = await contract.updateIssuer.estimateGas(issuerAddress, metadataUri);
+      const gasLimit = (gasEstimate * 120n) / 100n;
       
       const tx = await contract.updateIssuer(issuerAddress, metadataUri, {
         gasLimit: gasLimit
@@ -96,8 +96,8 @@ class ContractService {
     try {
       const contract = this.getContract(signer);
       
-      const gasEstimate = await contract.estimateGas.revokeCredential(credentialHash);
-      const gasLimit = gasEstimate.mul(120).div(100);
+      const gasEstimate = await contract.revokeCredential.estimateGas(credentialHash);
+      const gasLimit = (gasEstimate * 120n) / 100n;
       
       const tx = await contract.revokeCredential(credentialHash, {
         gasLimit: gasLimit
@@ -122,8 +122,8 @@ class ContractService {
     try {
       const contract = this.getContract(signer);
       
-      const gasEstimate = await contract.estimateGas.batchRevokeCredentials(credentialHashes);
-      const gasLimit = gasEstimate.mul(120).div(100);
+      const gasEstimate = await contract.batchRevokeCredentials.estimateGas(credentialHashes);
+      const gasLimit = (gasEstimate * 120n) / 100n;
       
       const tx = await contract.batchRevokeCredentials(credentialHashes, {
         gasLimit: gasLimit
@@ -211,7 +211,7 @@ class ContractService {
         issuer: {
           address: issuerData.addr,
           metadataUri: issuerData.metadataUri,
-          registeredAt: new Date(issuerData.registeredAt.toNumber() * 1000),
+          registeredAt: new Date(Number(issuerData.registeredAt) * 1000),
           exists: issuerData.exists,
           isActive: issuerData.isActive
         }
@@ -233,7 +233,7 @@ class ContractService {
       
       return {
         success: true,
-        count: count.toNumber()
+        count: Number(count)
       };
     } catch (error) {
       console.error('Get issuer count error:', error);
@@ -327,7 +327,7 @@ class ContractService {
           eventHandlers.onIssuerRegistered({
             issuer,
             metadataUri,
-            timestamp: new Date(timestamp.toNumber() * 1000),
+            timestamp: new Date(Number(timestamp) * 1000),
             event
           });
         });
@@ -339,7 +339,7 @@ class ContractService {
           eventHandlers.onCredentialRevoked({
             credentialHash,
             revokedBy,
-            timestamp: new Date(timestamp.toNumber() * 1000),
+            timestamp: new Date(Number(timestamp) * 1000),
             event
           });
         });
@@ -351,7 +351,7 @@ class ContractService {
           eventHandlers.onIssuerStatusChanged({
             issuer,
             isActive,
-            timestamp: new Date(timestamp.toNumber() * 1000),
+            timestamp: new Date(Number(timestamp) * 1000),
             event
           });
         });

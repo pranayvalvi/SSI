@@ -327,8 +327,10 @@ function parseOS(userAgent) {
 function getSeverityForSecurityEvent(eventType) {
   const severityMap = {
     'security_login_failed': 'warning',
+    'security_registration_failed': 'warning',
     'security_account_locked': 'error',
     'security_password_reset': 'info',
+    'security_password_change_failed': 'warning',
     'security_suspicious_activity': 'critical',
     'security_unauthorized_access': 'warning'
   };
@@ -339,8 +341,10 @@ function getSeverityForSecurityEvent(eventType) {
 function getDescriptionForSecurityEvent(eventType, details) {
   const descriptions = {
     'security_login_failed': `Failed login attempt for ${details.username || 'unknown user'}`,
+    'security_registration_failed': `Failed registration attempt: ${details.reason}`,
     'security_account_locked': `Account locked due to multiple failed attempts`,
     'security_password_reset': `Password reset requested`,
+    'security_password_change_failed': `Failed password change attempt`,
     'security_suspicious_activity': `Suspicious activity detected: ${details.reason}`,
     'security_unauthorized_access': `Unauthorized access attempt to ${details.resource}`
   };

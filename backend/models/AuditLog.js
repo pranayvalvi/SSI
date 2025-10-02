@@ -51,9 +51,12 @@ const AuditLogSchema = new mongoose.Schema({
       
       // Security actions
       'security_login_failed',
+      'security_registration_failed',
       'security_account_locked',
       'security_password_reset',
+      'security_password_change_failed',
       'security_suspicious_activity',
+      'security_unauthorized_access',
       
       // API actions
       'api_call',
